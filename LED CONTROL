@@ -1,0 +1,15 @@
+void setup() {
+ Serial.begin(115200);
+ pinMode(D0,OUTPUT);
+ 
+}
+
+void loop() {
+  digitalWrite(D0,HIGH);
+  Serial.println("LED is off");
+  delay(1000);
+  digitalWrite(D0,LOW);
+  Serial.println("LED is on");
+  delay(5000);
+
+}
