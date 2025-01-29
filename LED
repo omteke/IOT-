@@ -1,0 +1,39 @@
+#include "ThingSpeak.h"
+#include <ESP8266WiFi.h>
+
+const int ledPin = D0;  // Set the pin for LED
+const char* ssid = "om teke";  // Your Wi-Fi SSID
+const char* password = "12345678";  // Your Wi-Fi password
+unsigned long channel = 2822932;  // Your ThingSpeak channel ID
+
+WiFiClient client;
+
+void setup() {
+  Serial.begin(115200);  // Start serial communication
+  pinMode(ledPin, OUTPUT);  // Set LED pin as output
+  
+  // Connect to Wi-Fi
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("Wi-Fi Connected");
+
+  // Initialize ThingSpeak
+  ThingSpeak.begin(client);
+}
+
+void loop() {
+  // Read the value of the LED field from ThingSpeak (Field 1)
+  float switchValue = ThingSpeak.readFloatField(channel, 1);
+
+  // Control the LED based on the switch value
+  if (switchValue == 1) {  // If the value from ThingSpeak is 1, turn the LED on
+    digitalWrite(ledPin, HIGH);
+  } else {  // Otherwise, turn the LED off
+    digitalWrite(ledPin, LOW);
+  }
+
+  delay(1000);  // Wait for 1 second before checking again
+}
