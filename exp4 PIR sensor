@@ -1,0 +1,50 @@
+#include "ThingSpeak.h"
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+//Replace your wifi credentials here
+const char* ssid = "om teke";//Replace with your Wifi Name
+const char* password = "12345678";// Replace with your wifi Password
+const char* server ="api.thingspeak.com";
+const char* apikey= "DHF4L0XFKQ648ZAY";
+//change your channel number here
+unsigned long channel =2837209;//Replace with your own ThingSpeak Account
+const int pirpin = D2;
+WiFiClient client;
+
+void setup() {
+
+Serial.begin(115200);
+delay(100);
+// We start by connecting to a WiFi network
+Serial.println();
+Serial.println();
+Serial.print("Connecting to ");
+Serial.println(ssid);
+WiFi.begin(ssid, password);
+while (WiFi.status() != WL_CONNECTED) {
+delay(500);
+Serial.print(".");
+}
+Serial.println("");
+Serial.println("WiFi connected");
+Serial.println("IP address: ");
+Serial.println(WiFi.localIP());
+Serial.print("Netmask: ");
+Serial.println(WiFi.subnetMask());
+Serial.print("Gateway: ");
+Serial.println(WiFi.gatewayIP());
+ThingSpeak.begin(client);
+pinMode(pirpin, INPUT);
+}
+
+void loop() {
+int pirValue = digitalRead(pirpin);
+Serial.print("PIR value: ");
+Serial.println(pirValue);
+if(pirValue== HIGH) {
+Serial.println("Motion Detected!");
+} else {
+Serial.println("No Motion!");
+}
+ThingSpeak.writeField(channel,1,pirValue,apikey);
+}
