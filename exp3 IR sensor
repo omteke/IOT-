@@ -1,0 +1,64 @@
+#include "ThingSpeak.h"
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+
+// Replace with your WiFi credentials
+const char* ssid = "om teke";  // Your WiFi SSID
+const char* password = "12345678";  // Your WiFi Password
+
+const char* server = "api.thingspeak.com";
+const char* apiKey = "EQ63ACEDRHT0BEQS";  // Your ThingSpeak Write API key
+unsigned long channel = 2837161;  // Your ThingSpeak Channel ID
+
+WiFiClient client;
+
+void setup() {
+
+  Serial.begin(115200);
+  delay(100);
+
+  // Connecting to WiFi
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  ThingSpeak.begin(client);  // Initialize ThingSpeak
+}
+
+void loop() {
+  // Read the analog value from A0 (sensor)
+  int sensorValue = analogRead(A0);
+  float radiation = sensorValue * (3.3 / 1023.0);  // Convert the analog value to voltage (assuming 3.3V ref)
+
+  // Debugging: Print the sensor value and calculated radiation in voltage
+  Serial.print("Sensor Value: ");
+  Serial.println(sensorValue);
+  Serial.print("Radiation (in Voltage): ");
+  
+  Serial.println(radiation, 4);  // Print with 4 decimal places
+
+  // Send the sensor value to ThingSpeak (Field 1)
+  int responseCode = ThingSpeak.writeField(channel, 1, sensorValue, apiKey);
+
+  // Debugging: Check if the data was sent successfully
+  if (responseCode == 200) {
+    Serial.println("Data successfully sent to ThingSpeak.");
+  } else {
+    Serial.print("Failed to send data. Response code: ");
+    Serial.println(responseCode);
+  }
+
+  // Wait for 5 seconds before sending data again
+  delay(500);
+}
